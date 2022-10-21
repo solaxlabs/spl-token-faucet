@@ -1,10 +1,9 @@
 {
-  "name": "spl-token-faucet",
+  "name": "solax-faucet",
   "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/src/index.d.js",
   "scripts": {
-    "publish": "yarn publish .",
     "clean": "rm -rf dist",
     "build": "yarn clean && tsc",
     "lint:ts": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
