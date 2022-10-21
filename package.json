@@ -1,0 +1,26 @@
+{
+  "name": "spl-token-faucet",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "./dist/src/index.d.js",
+  "scripts": {
+    "publish": "yarn publish .",
+    "clean": "rm -rf dist",
+    "build": "yarn clean && tsc",
+    "lint:ts": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint:rs": "rustfmt programs/**/src/lib.rs",
+    "lint": "yarn lint:ts && yarn lint:rs"
+  },
+  "dependencies": {
+    "@project-serum/anchor": "^0.25.0",
+    "@solana/spl-token": "^0.3.5",
+    "@solana/web3.js": "^1.66.2"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0",
+    "@types/node-fetch": "^2.6.2",
+    "prettier": "^2.7.1",
+    "rustfmt": "^0.1.0",
+    "typescript": "4.7.4"
+  }
+}
