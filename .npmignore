@@ -2,6 +2,7 @@
 .anchor
 .DS_Store
 target
+!dist/target
 **/*.rs.bk
 node_modules
 programs

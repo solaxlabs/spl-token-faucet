@@ -1,10 +1,10 @@
-import { BN } from "bn.js";
+import BN from "bn.js";
 import { Program, AnchorProvider } from "@project-serum/anchor";
-import { Keypair, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
-  uiAmountToAmount,
   getAccount,
+  getMint,
   createAssociatedTokenAccountInstruction,
   TokenAccountNotFoundError,
   TOKEN_PROGRAM_ID,
@@ -39,7 +39,7 @@ export class Faucet {
     owner = owner || this.walletAddress;
 
     let instruction;
-    const address = getAssociatedTokenAddressSync(mint, owner);
+    const address = getAssociatedTokenAddressSync(mint, owner, true);
 
     try {
       await getAccount(this.provider.connection, address);
@@ -54,56 +54,51 @@ export class Faucet {
     return { address, instruction };
   }
 
-  async airdrop({ mint, amount }: { mint: PublicKey; amount: string }): Promise<Transaction> {
+  async getU64Amount({ mint, amount }: { mint: PublicKey; amount: number }): Promise<BN> {
+    const mintInfo = await getMint(this.provider.connection, mint);
+    return new BN(Math.trunc(amount * 1e4)).mul(new BN(10).pow(new BN(mintInfo.decimals))).divn(1e4);
+  }
+
+  async airdrop({ mint, amount }: { mint: PublicKey; amount: number }): Promise<Transaction> {
     const tx = new Transaction();
 
-    const amountU64 = await uiAmountToAmount(this.provider.connection, Keypair.generate(), mint, amount);
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
-
     if (userToken.instruction) tx.add(userToken.instruction);
 
-    if (amountU64 instanceof BigInt) {
-      tx.add(
-        await this.program.methods
-          .airdrop(new BN(amountU64.toString()))
-          .accounts({
-            userTokenAccount: userToken.address,
-            mint,
-            mintAuthority: this.authorityAddress,
-            tokenProgram: TOKEN_PROGRAM_ID,
-          })
-          .instruction()
-      );
-    } else {
-      throw Error(amountU64?.toString());
-    }
+    const u64Amount = await this.getU64Amount({ mint, amount });
+    tx.add(
+      await this.program.methods
+        .airdrop(u64Amount)
+        .accounts({
+          userTokenAccount: userToken.address,
+          mint,
+          mintAuthority: this.authorityAddress,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .instruction()
+    );
 
     return tx;
   }
 
-  async claim({ mint, amount }: { mint: PublicKey; amount: string }): Promise<Transaction> {
+  async claim({ mint, amount }: { mint: PublicKey; amount: number }): Promise<Transaction> {
     const tx = new Transaction();
 
-    const amountU64 = await uiAmountToAmount(this.provider.connection, Keypair.generate(), mint, amount);
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
-
     if (userToken.instruction) tx.add(userToken.instruction);
 
-    if (amountU64 instanceof BigInt) {
-      tx.add(
-        await this.program.methods
-          .claim(new BN(amountU64.toString()))
-          .accounts({
-            userTokenAccount: userToken.address,
-            vaultTokenAccount: getAssociatedTokenAddressSync(mint, this.authorityAddress),
-            vaultAuthority: this.authorityAddress,
-            tokenProgram: TOKEN_PROGRAM_ID,
-          })
-          .instruction()
-      );
-    } else {
-      throw Error(amountU64?.toString());
-    }
+    const u64Amount = await this.getU64Amount({ mint, amount });
+    tx.add(
+      await this.program.methods
+        .claim(u64Amount)
+        .accounts({
+          userTokenAccount: userToken.address,
+          vaultTokenAccount: getAssociatedTokenAddressSync(mint, this.authorityAddress, true),
+          vaultAuthority: this.authorityAddress,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .instruction()
+    );
 
     return tx;
   }
