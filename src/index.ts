@@ -31,12 +31,12 @@ export class Faucet {
 
   async newVersionedTX(instructions: TransactionInstruction[]): Promise<VersionedTransaction> {
     const { blockhash: recentBlockhash } = await this.provider.connection.getLatestBlockhash();
-    const messageV0 = new TransactionMessage({
+    const message = new TransactionMessage({
       payerKey: this.walletAddress,
       recentBlockhash,
       instructions,
-    }).compileToV0Message();
-    return new VersionedTransaction(messageV0);
+    }).compileToLegacyMessage();
+    return new VersionedTransaction(message);
   }
 
   async getOrCreateAssociatedTokenAccountIX({
