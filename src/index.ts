@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Program, AnchorProvider } from "@project-serum/anchor";
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
   getAccount,
@@ -27,6 +27,16 @@ export class Faucet {
 
   get authorityAddress(): PublicKey {
     return PublicKey.findProgramAddressSync([Buffer.from("Faucet Authority")], this.program.programId)[0];
+  }
+
+  async newVersionedTX(instructions: TransactionInstruction[]): Promise<VersionedTransaction> {
+    const { blockhash: recentBlockhash } = await this.provider.connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+      payerKey: this.walletAddress,
+      recentBlockhash,
+      instructions,
+    }).compileToV0Message();
+    return new VersionedTransaction(messageV0);
   }
 
   async getOrCreateAssociatedTokenAccountIX({
@@ -59,14 +69,14 @@ export class Faucet {
     return new BN(Math.trunc(amount * 1e4)).mul(new BN(10).pow(new BN(mintInfo.decimals))).divn(1e4);
   }
 
-  async airdrop({ mint, amount }: { mint: PublicKey; amount: number }): Promise<Transaction> {
-    const tx = new Transaction();
+  async airdrop({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
+    const ixs = [];
 
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
-    if (userToken.instruction) tx.add(userToken.instruction);
+    if (userToken.instruction) ixs.push(userToken.instruction);
 
     const u64Amount = await this.getU64Amount({ mint, amount });
-    tx.add(
+    ixs.push(
       await this.program.methods
         .airdrop(u64Amount)
         .accounts({
@@ -78,17 +88,17 @@ export class Faucet {
         .instruction()
     );
 
-    return tx;
+    return this.newVersionedTX(ixs);
   }
 
-  async claim({ mint, amount }: { mint: PublicKey; amount: number }): Promise<Transaction> {
-    const tx = new Transaction();
+  async claim({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
+    const ixs = [];
 
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
-    if (userToken.instruction) tx.add(userToken.instruction);
+    if (userToken.instruction) ixs.push(userToken.instruction);
 
     const u64Amount = await this.getU64Amount({ mint, amount });
-    tx.add(
+    ixs.push(
       await this.program.methods
         .claim(u64Amount)
         .accounts({
@@ -100,6 +110,6 @@ export class Faucet {
         .instruction()
     );
 
-    return tx;
+    return this.newVersionedTX(ixs);
   }
 }
