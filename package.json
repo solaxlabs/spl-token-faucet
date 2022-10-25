@@ -1,6 +1,6 @@
 {
-  "name": "solax-faucet",
-  "version": "0.7.0",
+  "name": "solax-spl-faucet",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",

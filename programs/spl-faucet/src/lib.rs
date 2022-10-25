@@ -4,7 +4,7 @@ use anchor_spl::token::{mint_to, transfer, Mint, MintTo, Token, TokenAccount, Tr
 declare_id!("GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX");
 
 #[program]
-pub mod spl_token_faucet {
+pub mod spl_faucet {
     use super::*;
 
     pub fn airdrop(ctx: Context<Airdrop>, amount: u64) -> Result<()> {

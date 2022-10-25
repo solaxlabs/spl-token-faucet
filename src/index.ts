@@ -1,5 +1,5 @@
 import { Program, AnchorProvider } from "@project-serum/anchor";
-import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage, Cluster } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
   getAccount,
@@ -8,14 +8,15 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { Token, TokenAmount } from "solax-spl-utils";
-import { SplTokenFaucet, IDL } from "../target/types/spl_token_faucet";
+import { SplFaucet, IDL } from "../target/types/spl_faucet";
 
 export class Faucet {
   static AUTHORITY_PREFIX = "Faucet Authority";
-  readonly program: Program<SplTokenFaucet>;
+  readonly program: Program<SplFaucet>;
 
   constructor(
     readonly provider: AnchorProvider,
+    readonly cluster: Cluster = "devnet",
     programId: PublicKey = new PublicKey("GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX")
   ) {
     this.program = new Program(IDL, programId, provider);
@@ -70,7 +71,7 @@ export class Faucet {
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
     if (userToken.instruction) ixs.push(userToken.instruction);
 
-    const token = new Token({ connection: this.provider.connection, mint, cluster: "devnet" });
+    const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
     const u64Amount = await TokenAmount.toU64Amount({ token, amount });
     ixs.push(
       await this.program.methods
@@ -93,7 +94,7 @@ export class Faucet {
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
     if (userToken.instruction) ixs.push(userToken.instruction);
 
-    const token = new Token({ connection: this.provider.connection, mint, cluster: "devnet" });
+    const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
     const u64Amount = await TokenAmount.toU64Amount({ token, amount });
     ixs.push(
       await this.program.methods

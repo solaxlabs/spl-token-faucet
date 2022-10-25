@@ -1252,6 +1252,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "spl-faucet"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+]
+
+[[package]]
 name = "spl-token"
 version = "3.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1264,14 +1272,6 @@ dependencies = [
  "num_enum",
  "solana-program",
  "thiserror",
-]
-
-[[package]]
-name = "spl-token-faucet"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
 ]
 
 [[package]]
