@@ -1,17 +1,17 @@
-import BN from "bn.js";
 import { Program, AnchorProvider } from "@project-serum/anchor";
 import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
   getAccount,
-  getMint,
   createAssociatedTokenAccountInstruction,
   TokenAccountNotFoundError,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import { Token, TokenAmount } from "solax-spl-utils";
 import { SplTokenFaucet, IDL } from "../target/types/spl_token_faucet";
 
 export class Faucet {
+  static AUTHORITY_PREFIX = "Faucet Authority";
   readonly program: Program<SplTokenFaucet>;
 
   constructor(
@@ -26,10 +26,10 @@ export class Faucet {
   }
 
   get authorityAddress(): PublicKey {
-    return PublicKey.findProgramAddressSync([Buffer.from("Faucet Authority")], this.program.programId)[0];
+    return PublicKey.findProgramAddressSync([Buffer.from(Faucet.AUTHORITY_PREFIX)], this.program.programId)[0];
   }
 
-  async newVersionedTX(instructions: TransactionInstruction[]): Promise<VersionedTransaction> {
+  async newTX(instructions: TransactionInstruction[]): Promise<VersionedTransaction> {
     const { blockhash: recentBlockhash } = await this.provider.connection.getLatestBlockhash();
     const message = new TransactionMessage({
       payerKey: this.walletAddress,
@@ -64,18 +64,14 @@ export class Faucet {
     return { address, instruction };
   }
 
-  async getU64Amount({ mint, amount }: { mint: PublicKey; amount: number }): Promise<BN> {
-    const mintInfo = await getMint(this.provider.connection, mint);
-    return new BN(Math.trunc(amount * 1e4)).mul(new BN(10).pow(new BN(mintInfo.decimals))).divn(1e4);
-  }
-
   async airdrop({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
     const ixs = [];
 
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
     if (userToken.instruction) ixs.push(userToken.instruction);
 
-    const u64Amount = await this.getU64Amount({ mint, amount });
+    const token = new Token({ connection: this.provider.connection, mint, cluster: "devnet" });
+    const u64Amount = await TokenAmount.toU64Amount({ token, amount });
     ixs.push(
       await this.program.methods
         .airdrop(u64Amount)
@@ -88,7 +84,7 @@ export class Faucet {
         .instruction()
     );
 
-    return this.newVersionedTX(ixs);
+    return this.newTX(ixs);
   }
 
   async claim({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
@@ -97,7 +93,8 @@ export class Faucet {
     const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
     if (userToken.instruction) ixs.push(userToken.instruction);
 
-    const u64Amount = await this.getU64Amount({ mint, amount });
+    const token = new Token({ connection: this.provider.connection, mint, cluster: "devnet" });
+    const u64Amount = await TokenAmount.toU64Amount({ token, amount });
     ixs.push(
       await this.program.methods
         .claim(u64Amount)
@@ -110,6 +107,6 @@ export class Faucet {
         .instruction()
     );
 
-    return this.newVersionedTX(ixs);
+    return this.newTX(ixs);
   }
 }
