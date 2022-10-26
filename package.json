@@ -1,6 +1,6 @@
 {
   "name": "solax-spl-faucet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -20,7 +20,7 @@
     "@solana/spl-token": "^0.3.5",
     "@solana/web3.js": "^1.66.2",
     "bn.js": "^5.2.1",
-    "solax-spl-utils": "^0.1.0"
+    "solax-spl-utils": "^0.1.2"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.1",

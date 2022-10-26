@@ -730,10 +730,10 @@ snake-case@^3.0.4:
     dot-case "^3.0.4"
     tslib "^2.0.3"
 
-solax-spl-utils@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/solax-spl-utils/-/solax-spl-utils-0.1.0.tgz#99b9b1357cd660fa372e97ee8d0acd368d43991e"
-  integrity sha512-Q6GmV8mFsPBNE3OC3ghtiHmrYWZAUzMOhNUWimdH/DdHZdMfCzH1Dv0VpYOV5d15a5plE6dGqVxVJTBBPL23Ug==
+solax-spl-utils@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/solax-spl-utils/-/solax-spl-utils-0.1.2.tgz#654d874afc652a69e86aa0ea7f6e335ebe1fbe62"
+  integrity sha512-cXLa9kB4MQW2TSIR81Z9UNDeMm0IqD/8/nLW4OlLtO+6X9+VG85nmVI1GHzubbBEtM+5fM4B4f3KvN5Gykqgcg==
   dependencies:
     "@metaplex-foundation/mpl-token-metadata" "^2.3.3"
     "@solana/spl-token" "^0.3.5"
