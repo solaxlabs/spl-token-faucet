@@ -8,6 +8,8 @@ pub mod spl_faucet {
     use super::*;
 
     pub fn airdrop(ctx: Context<Airdrop>, amount: u64) -> Result<()> {
+        assert!(10u64.pow(ctx.accounts.mint.decimals as u32) * 100 == amount);
+
         let bump = *ctx.bumps.get("mint_authority").unwrap();
 
         mint_to(
@@ -25,6 +27,8 @@ pub mod spl_faucet {
     }
 
     pub fn claim(ctx: Context<Claim>, amount: u64) -> Result<()> {
+        assert!(10u64.pow(9) * 100 == amount); // SAX decimals
+
         let bump = *ctx.bumps.get("vault_authority").unwrap();
 
         transfer(
