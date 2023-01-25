@@ -7,7 +7,7 @@ import {
   TokenAccountNotFoundError,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { Token, TokenAmount } from "solax-spl-utils";
+import { Token, TokenAmount } from "@solax/spl-utils";
 import { SplFaucet, IDL } from "../target/types/spl_faucet";
 
 export class Faucet {

@@ -1,0 +1,70 @@
+name: Publish NPM Package
+
+on:
+  push:
+    paths:
+      - "src/**"
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  SOLANA_VERSION: stable
+  ANCHOR_VERSION: 0.26.0
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Setup | Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+          components: clippy
+
+      - name: Add Rust to PATH
+        run: |
+          echo "/home/runner/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install solana
+        run: curl -sSfL https://release.solana.com/$SOLANA_VERSION/install | sh
+
+      - name: Add Solana to PATH
+        run: echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor
+        run: npm i -g @coral-xyz/anchor-cli@$ANCHOR_VERSION
+
+      - name: Install NPM Packages
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Run Anchor Build
+        run: anchor build
+
+      - name: Create Solana Keypair
+        run: solana-keygen new -o /home/runner/.config/solana/id.json -f -s --no-bip39-passphrase
+
+      - name: Run Anchor Test
+        run: anchor test --skip-build --provider.wallet /home/runner/.config/solana/id.json
+
+      - name: Build TypeScript
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+
+      - name: Publish SDK
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}' > .npmrc
+          npm publish --access public
+
