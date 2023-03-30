@@ -1,6 +1,6 @@
 {
   "name": "@solax/spl-faucet",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -20,13 +20,13 @@
     "@coral-xyz/anchor": "^0.27.0",
     "@solana/spl-token": "^0.3.7",
     "@solana/web3.js": "^1.74.0",
-    "@solax/spl-utils": "^0.1.9",
+    "@solax/spl-utils": "^0.2.0",
     "bn.js": "^5.2.1"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
-    "@types/node": "^18.15.6",
-    "prettier": "^2.8.3",
+    "@types/node": "^18.15.11",
+    "prettier": "^2.8.7",
     "rustfmt": "^0.1.0",
     "typescript": "^4.9.5"
   }

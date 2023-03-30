@@ -7,7 +7,7 @@ import {
   TokenAccountNotFoundError,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { Token, TokenAmount } from "@solax/spl-utils";
+import { Token, TokenAmountUtil } from "@solax/spl-utils";
 import { SplFaucet, IDL } from "../target/types/spl_faucet";
 
 export class Faucet {
@@ -72,7 +72,8 @@ export class Faucet {
     if (userToken.instruction) ixs.push(userToken.instruction);
 
     const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
-    const u64Amount = await TokenAmount.toU64Amount({ token, amount });
+    await token.loadTokenInfo();
+    const u64Amount = TokenAmountUtil.toAmount(amount, token.decimals);
     ixs.push(
       await this.program.methods
         .airdrop(u64Amount)
@@ -95,7 +96,8 @@ export class Faucet {
     if (userToken.instruction) ixs.push(userToken.instruction);
 
     const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
-    const u64Amount = await TokenAmount.toU64Amount({ token, amount });
+    await token.loadTokenInfo();
+    const u64Amount = TokenAmountUtil.toAmount(amount, token.decimals);
     ixs.push(
       await this.program.methods
         .claim(u64Amount)

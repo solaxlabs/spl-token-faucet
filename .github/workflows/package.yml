@@ -8,7 +8,7 @@ on:
 
 env:
   SOLANA_VERSION: stable
-  ANCHOR_VERSION: 0.26.0
+  ANCHOR_VERSION: 0.27.0
 
 jobs:
   build_and_publish:
@@ -18,10 +18,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Node.js 16.x
+      - name: Setup Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - name: Setup | Rust
         uses: ATiltedTree/setup-rust@v1
@@ -45,7 +45,7 @@ jobs:
       - name: Install NPM Packages
         uses: borales/actions-yarn@v4
         with:
-          cmd: install
+          cmd: install --frozen-lockfile
 
       - name: Run Anchor Build
         run: anchor build
