@@ -8,7 +8,10 @@ pub mod spl_faucet {
     use super::*;
 
     pub fn airdrop(ctx: Context<Airdrop>, amount: u64) -> Result<()> {
-        assert!(10u64.pow(ctx.accounts.mint.decimals as u32) * 100 == amount);
+        require!(
+            10u64.pow(ctx.accounts.mint.decimals as u32) * 1000 >= amount,
+            FaucetError::MaxAirdropAmountExceeded
+        );
 
         let bump = *ctx.bumps.get("mint_authority").unwrap();
 
@@ -27,7 +30,7 @@ pub mod spl_faucet {
     }
 
     pub fn claim(ctx: Context<Claim>, amount: u64) -> Result<()> {
-        assert!(10u64.pow(9) * 100 == amount); // SAX decimals
+        require!(10u64.pow(9) * 1000 >= amount, FaucetError::MaxAirdropAmountExceeded); // SAX decimals
 
         let bump = *ctx.bumps.get("vault_authority").unwrap();
 
@@ -68,6 +71,12 @@ pub struct Claim<'info> {
     #[account(seeds = [FAUCET_AUTHORITY_PREFIX], bump)]
     pub vault_authority: UncheckedAccount<'info>,
     pub token_program: Program<'info, Token>,
+}
+
+#[error_code]
+pub enum FaucetError {
+    #[msg("Maximum airdrop amount exceeded")]
+    MaxAirdropAmountExceeded,
 }
 
 const FAUCET_AUTHORITY_PREFIX: &'static [u8] = b"Faucet Authority";
