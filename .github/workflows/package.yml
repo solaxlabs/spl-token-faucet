@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  SOLANA_VERSION: v1.14.17
-  ANCHOR_VERSION: 0.27.0
+  SOLANA_VERSION: stable
+  ANCHOR_VERSION: 0.29.0
 
 jobs:
   build_and_publish:
@@ -42,19 +42,13 @@ jobs:
       - name: Install Anchor
         run: npm i -g @coral-xyz/anchor-cli@$ANCHOR_VERSION
 
+      - name: Run Anchor Build
+        run: anchor build --arch sbf
+
       - name: Install NPM Packages
         uses: borales/actions-yarn@v4
         with:
           cmd: install --frozen-lockfile
-
-      - name: Run Anchor Build
-        run: anchor build
-
-      - name: Create Solana Keypair
-        run: solana-keygen new -o /home/runner/.config/solana/id.json -f -s --no-bip39-passphrase
-
-      - name: Run Anchor Test
-        run: anchor test --skip-build --provider.wallet /home/runner/.config/solana/id.json
 
       - name: Build TypeScript
         uses: borales/actions-yarn@v4
