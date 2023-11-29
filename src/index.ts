@@ -1,5 +1,5 @@
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
-import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage, Cluster } from "@solana/web3.js";
+import { Program, Provider } from "@coral-xyz/anchor";
+import { PublicKey, VersionedTransaction, TransactionInstruction, TransactionMessage } from "@solana/web3.js";
 import {
   getAssociatedTokenAddressSync,
   getAccount,
@@ -7,7 +7,6 @@ import {
   TokenAccountNotFoundError,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { Token, TokenAmountUtil } from "@solax/spl-utils";
 import { SplFaucet, IDL } from "../target/types/spl_faucet";
 
 export class Faucet {
@@ -15,15 +14,15 @@ export class Faucet {
   readonly program: Program<SplFaucet>;
 
   constructor(
-    readonly provider: AnchorProvider,
-    readonly cluster: Cluster = "devnet",
-    programId: PublicKey = new PublicKey("GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX")
+    readonly provider: Provider,
+    programId: PublicKey = new PublicKey("GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX"),
   ) {
     this.program = new Program(IDL, programId, provider);
   }
 
   get walletAddress(): PublicKey {
-    return this.provider.wallet.publicKey;
+    if (!this.provider.publicKey) throw new Error("Wallet not connected");
+    return this.provider.publicKey;
   }
 
   get authorityAddress(): PublicKey {
@@ -40,23 +39,22 @@ export class Faucet {
     return new VersionedTransaction(message);
   }
 
-  async getOrCreateAssociatedTokenAccountIX({
-    mint,
-    owner,
-  }: {
-    mint: PublicKey;
-    owner?: PublicKey;
-  }): Promise<{ address: PublicKey; instruction?: TransactionInstruction }> {
-    owner = owner || this.walletAddress;
-
+  async getOrCreateAssociatedTokenAccountIX(
+    mintAddress: PublicKey,
+  ): Promise<{ address: PublicKey; instruction?: TransactionInstruction }> {
     let instruction;
-    const address = getAssociatedTokenAddressSync(mint, owner, true);
+    const address = getAssociatedTokenAddressSync(mintAddress, this.walletAddress, true);
 
     try {
       await getAccount(this.provider.connection, address);
     } catch (err) {
       if (err instanceof TokenAccountNotFoundError) {
-        instruction = createAssociatedTokenAccountInstruction(this.walletAddress, address, owner, mint);
+        instruction = createAssociatedTokenAccountInstruction(
+          this.walletAddress,
+          address,
+          this.walletAddress,
+          mintAddress,
+        );
       } else {
         throw err;
       }
@@ -65,49 +63,22 @@ export class Faucet {
     return { address, instruction };
   }
 
-  async airdrop({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
+  async airdrop(mintAddress: PublicKey): Promise<VersionedTransaction> {
     const ixs = [];
 
-    const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
+    const userToken = await this.getOrCreateAssociatedTokenAccountIX(mintAddress);
     if (userToken.instruction) ixs.push(userToken.instruction);
 
-    const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
-    await token.loadTokenInfo();
-    const u64Amount = TokenAmountUtil.toAmount(amount, token.decimals);
     ixs.push(
       await this.program.methods
-        .airdrop(u64Amount)
+        .airdrop()
         .accounts({
-          userTokenAccount: userToken.address,
-          mint,
-          mintAuthority: this.authorityAddress,
+          tokenAccount: userToken.address,
+          mint: mintAddress,
+          faucetAuthority: this.authorityAddress,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
-        .instruction()
-    );
-
-    return this.newTX(ixs);
-  }
-
-  async claim({ mint, amount }: { mint: PublicKey; amount: number }): Promise<VersionedTransaction> {
-    const ixs = [];
-
-    const userToken = await this.getOrCreateAssociatedTokenAccountIX({ mint });
-    if (userToken.instruction) ixs.push(userToken.instruction);
-
-    const token = new Token({ connection: this.provider.connection, mint, cluster: this.cluster });
-    await token.loadTokenInfo();
-    const u64Amount = TokenAmountUtil.toAmount(amount, token.decimals);
-    ixs.push(
-      await this.program.methods
-        .claim(u64Amount)
-        .accounts({
-          userTokenAccount: userToken.address,
-          vaultTokenAccount: getAssociatedTokenAddressSync(mint, this.authorityAddress, true),
-          vaultAuthority: this.authorityAddress,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .instruction()
+        .instruction(),
     );
 
     return this.newTX(ixs);
