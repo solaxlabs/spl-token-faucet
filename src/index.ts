@@ -15,7 +15,7 @@ export class Faucet {
 
   constructor(
     readonly provider: Provider,
-    programId: PublicKey = new PublicKey("GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX"),
+    programId: PublicKey = new PublicKey("CCyXskW2kpYFHtLnJ8i8RNKJazD871iq3FhRSkbztjTm"),
   ) {
     this.program = new Program(IDL, programId, provider);
   }
@@ -63,19 +63,25 @@ export class Faucet {
     return { address, instruction };
   }
 
-  async airdrop(mintAddress: PublicKey): Promise<VersionedTransaction> {
+  async claim(mintAddress: PublicKey): Promise<VersionedTransaction> {
     const ixs = [];
 
+    const faucetTokenAddress = getAssociatedTokenAddressSync(mintAddress, this.authorityAddress, true);
     const userToken = await this.getOrCreateAssociatedTokenAccountIX(mintAddress);
     if (userToken.instruction) ixs.push(userToken.instruction);
 
     ixs.push(
       await this.program.methods
-        .airdrop()
+        .claim()
         .accounts({
-          tokenAccount: userToken.address,
-          mint: mintAddress,
+          faucetToken: faucetTokenAddress,
+          userToken: userToken.address,
+          user: this.walletAddress,
           faucetAuthority: this.authorityAddress,
+          done: PublicKey.findProgramAddressSync(
+            [this.walletAddress.toBuffer(), mintAddress.toBuffer()],
+            this.program.programId,
+          )[0],
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .instruction(),

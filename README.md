@@ -4,7 +4,7 @@
 
 ## Addresses
 
-- Program: GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX
-- Authority: 7rt81hqQwFPQiBZ2ZZoHkNndKiPwo7jbbyWodGNUg9Qb
-- USDC: AfWWqUHFzJFSxQHYn6PvyaoyswyodHgCTeDiRgovEmHX
-- USDT: FeCtM4bXUGo8vGrvHUCZjybmesovZLkQqCGqMuhHUHfZ
+- Program: CCyXskW2kpYFHtLnJ8i8RNKJazD871iq3FhRSkbztjTm
+- Authority: 3YpEt66aJkr4ipyN8NcUNj1vwDJZzeUZeLmZGBD9LNa8
+- USDC: 9TQr5ZSz3h3nvAFPkZyMXbLRn2VxJpVSn6sW5FH1Uiir
+- USDT: 8zL6cUxfgXdWyM7N7nePEKsdKb6WNZdsuXboHvuU8EfV

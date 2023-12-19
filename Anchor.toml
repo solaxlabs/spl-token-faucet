@@ -1,13 +1,13 @@
 [toolchain]
 anchor_version = "0.29.0"
-solana_version = "1.16.20"
+solana_version = "1.17.10"
 
 [features]
 seeds = false
 skip-lint = false
 
 [programs.localnet]
-spl_faucet = "GLAiyTqs45dw1Nm1WtxLYorPaE9j38EP1T3CJaf1AuQX"
+spl_faucet = "CCyXskW2kpYFHtLnJ8i8RNKJazD871iq3FhRSkbztjTm"
 
 [registry]
 url = "https://api.apr.dev"
