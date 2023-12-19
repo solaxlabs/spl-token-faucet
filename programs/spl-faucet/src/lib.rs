@@ -43,7 +43,7 @@ pub struct Claim<'info> {
     pub user: Signer<'info>,
 
     #[account(
-        init, space = 8, payer = user,
+        init, space = 72, payer = user,
         seeds = [&user.key().to_bytes(), &user_token.mint.to_bytes()], bump
     )]
     pub done: Account<'info, Done>,

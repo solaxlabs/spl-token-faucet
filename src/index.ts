@@ -35,7 +35,7 @@ export class Faucet {
       payerKey: this.walletAddress,
       recentBlockhash,
       instructions,
-    }).compileToLegacyMessage();
+    }).compileToV0Message();
     return new VersionedTransaction(message);
   }
 
