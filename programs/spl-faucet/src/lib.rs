@@ -23,7 +23,7 @@ pub mod spl_faucet {
                 },
             )
             .with_signer(&[&[FAUCET_AUTHORITY_PREFIX, &[ctx.bumps.faucet_authority]]]),
-            5_000_000_000, // 5k USDC/USDT
+            1_000_000_000,
         )
     }
 }

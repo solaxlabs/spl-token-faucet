@@ -164,10 +164,10 @@
     rpc-websockets "^7.5.1"
     superstruct "^0.14.2"
 
-"@solana/web3.js@^1.89.0":
-  version "1.89.1"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.89.1.tgz#52df6820f2d088c4558aa359af40580a03d10ec9"
-  integrity sha512-t9TTLtPQxtQB3SAf/5E8xPXfVDsC6WGOsgKY02l2cbe0HLymT7ynE8Hu48Lk5qynHCquj6nhISfEHcjMkYpu/A==
+"@solana/web3.js@^1.90.0":
+  version "1.90.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.90.0.tgz#a0f1364b4235d32a43649b74c52d9fb8bc9436a3"
+  integrity sha512-p0cb/COXb8NNVSMkGMPwqQ6NvObZgUitN80uOedMB+jbYWOKOeJBuPnzhenkIV9RX0krGwyuY1Ltn5O8MGFsEw==
   dependencies:
     "@babel/runtime" "^7.23.4"
     "@noble/curves" "^1.2.0"
@@ -184,6 +184,14 @@
     node-fetch "^2.7.0"
     rpc-websockets "^7.5.1"
     superstruct "^0.14.2"
+
+"@stabbleorg/solana-common@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@stabbleorg/solana-common/-/solana-common-0.1.0.tgz#990490251b51b2eafcd7c62b71a144365883e8b4"
+  integrity sha512-yrCOCvaPGuboFcQ/IbhHRGoTa3GXKdZljQXkRIwd2yYuuqi59Bo3npzKaeYU+XvjtY/SiM+nhCIpNxTPdkMqQw==
+  dependencies:
+    "@solana/spl-token" "^0.4.0"
+    "@solana/web3.js" "^1.90.0"
 
 "@types/bn.js@^5.1.0":
   version "5.1.5"
